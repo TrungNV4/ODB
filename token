@@ -1,0 +1,48 @@
+// Make sure only 1 bot at a time enters this section of code
+// by using an asynchronous lock
+ACQUIRELOCK globals
+TRY
+
+// Assume we need a new token by default
+bool needNewToken = true;
+
+// Check if 'globals' has a 'Token' property
+if (((IDictionary<String, object>)globals).ContainsKey("Token"))
+{
+  // If it does, it means Token and Counter already exist and we can use them
+  // Check if the counter is below 1000
+  if (globals.Counter < 1000)
+  {
+    // Perfect, we don't need a new token
+    needNewToken = false;
+  }
+}
+
+// If we do need a new token
+if (needNewToken)
+{
+  // We need to set the Token and Counter properties of 'globals'
+  // We (re)set the Counter to 0
+  globals.Counter = 0;
+
+  // Logic to get the token goes here
+  // You need to set the token to the 'globals.Token' variable
+  globals.Token = "dummy token";
+}
+
+// Here we know for sure the Counter exists because we passed all the logic above
+// Increase the counter by 1 for this attempt
+globals.Counter++;
+
+// Rethrow any exception
+CATCH
+throw;
+
+// Exit the lock that we entered at the start
+FINALLY
+RELEASELOCK globals
+END
+
+// Normal config goes here, you are guaranteed to have a
+// globals.Token you can use at this point, which is refreshed every 1000 attempts
+LOG globals.Token
